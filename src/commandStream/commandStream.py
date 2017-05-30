@@ -9,59 +9,95 @@ import time
 import threading
 
 #vars
-command = 'telnet Server00 8081'
-password = 'admin2msm883S'
-message ='We are working on and should soon have a websi$
-response = "'Server': " + message
-exitFlag = 0
 
-def commandStream(command):
-    print("Opening Stream...\n")
-    child = pexpect.spawn(command)
-
-    child.expect(['password:'])
-    child.sendline(password)
-    print("Stream opened:\n")
-    return child;
-
-class events (threading.Thread):
-    def __init__(self, threadID, name, child, command, e$
+#classes
+class CommandStream(threading.Thread):
+    
+    def __init__(self, streamID, name, openCommand, password="no")
+        threading.Thread.__init__(self)
+        self.streamID = streamID
+        self.name = name
+        self.password = password
+        self.streamOpened=False
+        
+    def openStream(self):
+        print("Opening Stream...\n")
+        try:
+            stream = pexpect.spawn(command)
+            if(password != "no"):
+                stream.expect(['password:'])
+                stream.sendline(password)
+            
+            print("Stream opened:\n")
+            self.streamOpened = True
+            return self.stream;
+        except:
+            print("Stream was not opened succsesfully")
+            print(str(stream))
+            
+    def run(self):
+        if(streamOpened == False):
+            self.openStream()
+        return self.stream;
+class Event():
+        def __init__(self, eventID, name, stream, command, expectation="none"):
+            self.eventID
+            self.name = name
+            self.command = command
+            self.expectation = expectation
+            self.stream = stream
+        
+        def run(self):
+            print("Executing " + self.command)
+            self.stream.sendline(command)
+            if(expectation != "none"):
+                self.stream.expect(expectation)
+                print(command " executed succsesfully")
+            else:
+                print(command "assumed to have executed")
+            
+            
+class TriggerEvent (threading.Thread):
+    def __init__(self, threadID, name, event, stream, trigger):
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
-        self.child = child
-        self.command = command
-        self.expectedResponse = expectedResponse
+        self.event = event
+        self.trigger = trigger
 
     def run(self):
         print("Starting " + self.name)
-        print("Executing " + self.command)
+        
         child.sendline(self.command)
         print("Command Executed")
+    
+    def checkTrigger(result)
+        if(result == self.trigger):
+            self.event.run()
 
-def timerEvent(duration, event, measurement="sec", expec$
-    if(measurement == "min") or (measurement == "minute"$
-        duration = duration * 60
-    elif(measurement == "hour"):
-        duration = duration * 120
+class TimmerEvent (threading.Thread):
+    def __init__(self, threadID, name, event, duration, measurement="sec", condition=True):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.event = event
+        
+        if(measurement == "min") or (measurement == "minute") or (measurement == "Minute"):
+            self.duration = duration * 60
+        elif(measurement == "hour") or (measurement == "hr"):
+            self.duration = duration * 120
+        else:
+            self.duration = duration
+        
+        self.condition = condition
+        
+    def run(self):
+        while(condition):
+            event.run()
 
-    while(condition):
-        event.run()
-
-
-        if(expectation != "none"):
-            event.child.expect(expectation)
+            if(expectation != "none"):
+                event.child.expect(expectation)
 
         time.sleep(duration)
 
-    return;
-
-def event():
-    return;
-
-child = commandStream(command)
-
-event1 = events(1, "event1", child, 'say "' + message + $
-#event1.start()
-timerEvent(25, event1, "min")
-#event1.join()
+        return;
