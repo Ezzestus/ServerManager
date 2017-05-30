@@ -13,7 +13,7 @@ import threading
 #classes
 class CommandStream(threading.Thread):
     
-    def __init__(self, streamID, name, openCommand, password="no")
+    def __init__(self, streamID, name, openCommand, password = "no"):
         threading.Thread.__init__(self)
         self.streamID = streamID
         self.name = name
@@ -39,9 +39,10 @@ class CommandStream(threading.Thread):
         if(streamOpened == False):
             self.openStream()
         return self.stream;
+
 class Event():
         def __init__(self, eventID, name, stream, command, expectation="none"):
-            self.eventID
+            self.eventID = eventID
             self.name = name
             self.command = command
             self.expectation = expectation
@@ -52,9 +53,9 @@ class Event():
             self.stream.sendline(command)
             if(expectation != "none"):
                 self.stream.expect(expectation)
-                print(command " executed succsesfully")
+                print(command + " executed succsesfully")
             else:
-                print(command "assumed to have executed")
+                print(command + "assumed to have executed")
             
             
 class TriggerEvent (threading.Thread):
@@ -71,16 +72,17 @@ class TriggerEvent (threading.Thread):
         child.sendline(self.command)
         print("Command Executed")
     
-    def checkTrigger(result)
+    def checkTrigger(result):
         if(result == self.trigger):
             self.event.run()
 
-class TimmerEvent (threading.Thread):
+class TimerEvent (threading.Thread):
     def __init__(self, threadID, name, event, duration, measurement="sec", condition=True):
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
         self.event = event
+        self.condition = condition
         
         if(measurement == "min") or (measurement == "minute") or (measurement == "Minute"):
             self.duration = duration * 60
@@ -92,8 +94,8 @@ class TimmerEvent (threading.Thread):
         self.condition = condition
         
     def run(self):
-        while(condition):
-            event.run()
+        while(self.condition):
+            self.event.run()
 
             if(expectation != "none"):
                 event.child.expect(expectation)
