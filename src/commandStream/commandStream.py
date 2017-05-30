@@ -19,7 +19,7 @@ class CommandStream(threading.Thread):
         self.name = name
         self.password = password
         self.streamOpened=False
-        self.stream = openStream
+        self.stream = openStream()
         
     def openStream(self):
         print("Opening Stream...\n")
