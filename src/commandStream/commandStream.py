@@ -12,7 +12,7 @@ import threading
 
 #classes
 class CommandStream(threading.Thread):
-        def openStream(self):
+    def openStream(self):
         print("Opening Stream...\n")
         try:
             stream = pexpect.spawn(command)
