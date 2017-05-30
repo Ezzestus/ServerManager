@@ -12,16 +12,7 @@ import threading
 
 #classes
 class CommandStream(threading.Thread):
-    
-    def __init__(self, streamID, name, openCommand, password = "no"):
-        threading.Thread.__init__(self)
-        self.streamID = streamID
-        self.name = name
-        self.password = password
-        self.streamOpened=False
-        self.stream = openStream()
-        
-    def openStream(self):
+        def openStream(self):
         print("Opening Stream...\n")
         try:
             stream = pexpect.spawn(command)
@@ -35,6 +26,14 @@ class CommandStream(threading.Thread):
         except:
             print("Stream was not opened succsesfully")
             print(str(stream))
+            
+    def __init__(self, streamID, name, openCommand, password = "no"):
+        threading.Thread.__init__(self)
+        self.streamID = streamID
+        self.name = name
+        self.password = password
+        self.streamOpened=False
+        self.stream = openStream()
             
     def run(self):
         if(streamOpened == False):
