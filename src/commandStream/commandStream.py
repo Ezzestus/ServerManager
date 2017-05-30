@@ -19,6 +19,7 @@ class CommandStream(threading.Thread):
         self.name = name
         self.password = password
         self.streamOpened=False
+        self.stream = openStream
         
     def openStream(self):
         print("Opening Stream...\n")
@@ -38,8 +39,7 @@ class CommandStream(threading.Thread):
     def run(self):
         if(streamOpened == False):
             self.openStream()
-        return self.stream;
-
+        
 class Event():
         def __init__(self, eventID, name, stream, command, expectation="none"):
             self.eventID = eventID
