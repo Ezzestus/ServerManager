@@ -10,95 +10,74 @@ import threading
 
 #vars
 
+
 #classes
-class CommandStream(threading.Thread):
-    def openStream(self):
-        print("Opening Stream...\n")
-        try:
-            stream = pexpect.spawn(command)
-            if(password != "no"):
-                stream.expect(['password:'])
-                stream.sendline(password)
-            
-            print("Stream opened:\n")
-            self.streamOpened = True
-            return self.stream;
-        except:
-            print("Stream was not opened succsesfully")
-            print(str(stream))
-            
-    def __init__(self, streamID, name, openCommand, password = "no"):
+
+
+
+class CommandStream():
+    
+    def __init__(self, streamID, name, openCommand, password = "no", streamOpened = False):
         threading.Thread.__init__(self)
         self.streamID = streamID
         self.name = name
         self.password = password
-        self.streamOpened=False
-        self.stream = openStream(self)
-            
-    def run(self):
-        if(streamOpened == False):
-            self.openStream(self)
-        
-class Event():
-        def __init__(self, eventID, name, stream, command, expectation="none"):
-            self.eventID = eventID
-            self.name = name
-            self.command = command
-            self.expectation = expectation
-            self.stream = stream
-        
-        def run(self):
-            print("Executing " + self.command)
-            self.stream.sendline(command)
-            if(expectation != "none"):
-                self.stream.expect(expectation)
-                print(command + " executed succsesfully")
-            else:
-                print(command + "assumed to have executed")
-            
-            
-class TriggerEvent (threading.Thread):
-    def __init__(self, threadID, name, event, stream, trigger):
-        threading.Thread.__init__(self)
-        self.threadID = threadID
-        self.name = name
-        self.event = event
-        self.trigger = trigger
-
-    def run(self):
-        print("Starting " + self.name)
-        
-        child.sendline(self.command)
-        print("Command Executed")
+        self.streamOpened = False
+        self.events = []
+        self.triggers = []
+        self.timers = []
     
-    def checkTrigger(result):
-        if(result == self.trigger):
-            self.event.run()
-
-class TimerEvent (threading.Thread):
-    def __init__(self, threadID, name, event, duration, measurement="sec", condition=True):
-        threading.Thread.__init__(self)
-        self.threadID = threadID
-        self.name = name
-        self.event = event
-        self.condition = condition
-        
-        if(measurement == "min") or (measurement == "minute") or (measurement == "Minute"):
-            self.duration = duration * 60
-        elif(measurement == "hour") or (measurement == "hr"):
-            self.duration = duration * 120
-        else:
-            self.duration = duration
-        
-        self.condition = condition
-        
+    def openStream(self):
+        if(self.streamOpened == True):
+            print("Opening Stream...\n")
+            try:
+                stream = pexpect.spawn(openCommand)
+                if(password != "no"):
+                    stream.expect(['password:'])
+                    stream.sendline(password)
+            
+                print("Stream opened:\n")
+                self.streamOpened = True
+                return stream;
+            except:
+                print("Stream was not opened succsesfully")
+                print(str(self.stream))
+    
     def run(self):
-        while(self.condition):
-            self.event.run()
-
-            if(expectation != "none"):
-                event.child.expect(expectation)
-
-        time.sleep(duration)
-
-        return;
+        if(self.streamOpened == False):
+            self.openStream()
+        elif(self.streamOpened):
+            while(len(self.events) > 0):
+                count = 0
+                for expectation in self.triggers:
+                    e = 1
+                    
+    def addEvent(self, threadID, name, command, expectation="none"):
+        eventItem = Event(threadID, name, command, expectation)
+        self.events.append(eventItem)
+    
+    def removeEvent(self, eventID):
+            self.events.remove(eventID)
+            
+    def addTrigger(self, threadID, name, event, trigger):
+        if(len(self.events) > 0):
+            tiggerItem = TriggerEvent(threadID, name, event, trigger)
+            self.triggers.append(triggerItem)
+        else:
+            print("No events, Triggers require an event to trigger")
+    
+    def removeTrigger(self, triggerID):
+        self.triggers.remove(triggerID)
+        
+    def addTimer(self, threadID, name, event, duration, measurement="sec", condition=True):
+        if(len(self.events) > 0):
+            timerItem = TimerEvent(threadID, name, event, duration, measurement="sec", condition=True)
+            self.timers.append(timerItem)
+        else:
+            print("No events, Timers require an event to trigger")
+            
+    def removeTimer(self, timerID):
+        self.timers.remove(timerID)
+        
+    def startTimer(self, timerID):
+        self.timers[timerID].run(self.openStream())
