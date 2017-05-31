@@ -8,11 +8,15 @@ import pexpect
 import time
 import threading
 
+#project imports
+from timerEvent import *
+from triggerEvent import *
+
 #vars
 
 
 #classes
-class CommandStream():
+class CommandStream(threading.Thread):
     
     def __init__(self, streamID, name, openCommand, password = "no", streamOpened = False):
         threading.Thread.__init__(self)
@@ -20,61 +24,55 @@ class CommandStream():
         self.name = name
         self.password = password
         self.streamOpened = False
-        self.events = []
-        self.triggers = []
-        self.timers = []
-    
-    def openStream(self):
+        self.expectations = []
+        
         if(self.streamOpened == True):
             print("Opening Stream...\n")
             try:
-                stream = pexpect.spawn(openCommand)
+                self.stream = pexpect.spawn(openCommand)
                 if(password != "no"):
-                    stream.expect(['password:'])
-                    stream.sendline(password)
+                    self.stream.expect(['password:'])
+                    self.stream.sendline(password)
             
                 print("Stream opened:\n")
                 self.streamOpened = True
-                return stream;
             except:
                 print("Stream was not opened succsesfully")
                 print(str(self.stream))
-    
-    def run(self):
-        if(self.streamOpened == False):
-            self.openStream()
-        elif(self.streamOpened):
-            while(len(self.events) > 0):
-                count = 0
-                for expectation in self.triggers:
-                    e = 1
-                    
-    def addEvent(self, threadID, name, command, expectation="none"):
-        eventItem = Event(threadID, name, command, expectation)
-        self.events.append(eventItem)
-    
-    def removeEvent(self, eventID):
-            self.events.remove(eventID)
+
+class ReadStream(CommandStream):
+        def __init__ (self, streamID, name, openCommand, password = "no", streamOpened = False):
+            ComandStream.__init__(self,streamID, name, openCommand, password = "no", streamOpened = False)
+            self.expectations = []
+            self.triggers = []
             
-    def addTrigger(self, threadID, name, event, trigger):
-        if(len(self.events) > 0):
-            tiggerItem = TriggerEvent(threadID, name, event, trigger)
+        def addExpectation(self, trigerID, name, event, trigger):
+            triggerItem = TriggerEvent(trigerID, name, event, trigger)
+            self.expectations.append(triggerItem.trigger)
+            triggerItem.trigerID = (len(self.expectations) -1)
             self.triggers.append(triggerItem)
-        else:
-            print("No events, Triggers require an event to trigger")
-    
-    def removeTrigger(self, triggerID):
-        self.triggers.remove(triggerID)
-        
-    def addTimer(self, threadID, name, event, duration, measurement="sec", condition=True):
-        if(len(self.events) > 0):
-            timerItem = TimerEvent(threadID, name, event, duration, measurement="sec", condition=True)
-            self.timers.append(timerItem)
-        else:
-            print("No events, Timers require an event to trigger")
             
-    def removeTimer(self, timerID):
-        self.timers.remove(timerID)
+        def removeExpectation(self, triggerID):
+            self.expectations.remove(triggerID)
+            self.triggers.remove(triggerID)
+            
+        def run(self):
+            while(streamOpened):
+                result = self.stream.expect(self.expectations)
         
-    def startTimer(self, timerID):
-        self.timers[timerID].run(self.openStream())
+class WriteStream(CommandStream):
+    
+    def __init__ (self, streamID, name, openCommand, password = "no", streamOpened = False):
+            CommandStream.__init__(self, streamID, name, openCommand, password = "no", streamOpened = False)
+            self.commands = []
+            
+    def run(self):
+        while(self.streamOpened):
+            if(len(self.commands) > 0):
+                self.stream.sendline(command)
+            else:
+                print("No commands to write")
+                
+    def addCommand(self, command):
+        self.commands.append(command)
+        
