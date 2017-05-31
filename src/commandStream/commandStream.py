@@ -12,9 +12,6 @@ import threading
 
 
 #classes
-
-
-
 class CommandStream():
     
     def __init__(self, streamID, name, openCommand, password = "no", streamOpened = False):
